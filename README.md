@@ -30,6 +30,30 @@ The installation will automatically add the `entiny` command to your system. You
 
 ```python
 import polars as pl
+from entiny import entiny
+
+a = pl.int_range(1, 30, eager=True)
+df = pl.DataFrame({"a": a})
+
+b = df.select(pl.col("a").shuffle(seed=1))
+c = df.select(pl.col("a").shuffle(seed=2))
+
+df = df.with_columns(
+    b=b.to_series(),
+    c=c.to_series()
+)
+
+print(df)
+
+# "1" will select the row with the largest and smallest value from each column.
+# The height of the final dataframe will be n * 2 * number of columns
+df_entiny= entiny(df, n=1).collect()
+
+print(df_entiny)
+```
+
+```python
+import polars as pl
 import numpy as np
 from entiny import entiny
 
