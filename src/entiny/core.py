@@ -41,9 +41,6 @@ def entiny(
     pl.LazyFrame
         A lazy subset of the original data containing the selected samples.
     """
-    import numpy as np
-    import polars as pl
-    from tqdm import tqdm
     
     if seed is not None:
         np.random.seed(seed)
