@@ -8,7 +8,7 @@ import polars as pl
 from entiny import entiny
 
 
-def test_tinying_sampling_numeric_df():
+def test_tinying_sampling_numeric_df() -> None:
     # Set random seed for reproducibility
     np.random.seed(42)
     
@@ -43,7 +43,7 @@ def test_tinying_sampling_numeric_df():
             val <= np.percentile(original_values, 10) for val in col_values
         ), f"Missing low values for {col}"
 
-def test_tinying_sampling_with_auto_strata():
+def test_tinying_sampling_with_auto_strata() -> None:
     # Set random seed for reproducibility
     np.random.seed(42)
     
@@ -97,7 +97,7 @@ def test_tinying_sampling_with_auto_strata():
                       for val in col_values), \
                 f"Values for {col} in category {category} are outside the category's range"
 
-def test_tinying_sampling_multiple_strata():
+def test_tinying_sampling_multiple_strata() -> None:
     # Set random seed for reproducibility
     np.random.seed(42)
     

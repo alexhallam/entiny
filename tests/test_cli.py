@@ -4,6 +4,7 @@ Test cases for the CLI functionality.
 
 import os
 import tempfile
+from typing import Generator
 
 import numpy as np
 import polars as pl
@@ -14,7 +15,7 @@ from entiny.cli import cli
 
 
 @pytest.fixture
-def sample_csv():
+def sample_csv() -> Generator[str, None, None]:
     """Create a temporary CSV file with sample data."""
     with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
         # Create sample data
@@ -28,7 +29,7 @@ def sample_csv():
         os.unlink(f.name)
 
 @pytest.fixture
-def sample_parquet():
+def sample_parquet() -> Generator[str, None, None]:
     """Create a temporary Parquet file with sample data."""
     with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
         # Create sample data
@@ -41,7 +42,7 @@ def sample_parquet():
         yield f.name
         os.unlink(f.name)
 
-def test_cli_help():
+def test_cli_help() -> None:
     """Test the help command output."""
     runner = CliRunner()
     
@@ -84,7 +85,7 @@ def test_cli_help():
     # Check for command name
     assert "entiny" in help_text
 
-def test_cli_basic_csv(sample_csv):
+def test_cli_basic_csv(sample_csv: str) -> None:
     """Test basic CLI functionality with CSV files."""
     runner = CliRunner()
     with tempfile.NamedTemporaryFile(suffix='.csv') as output:
@@ -103,7 +104,7 @@ def test_cli_basic_csv(sample_csv):
         assert "value1" in df.columns
         assert "value2" in df.columns
 
-def test_cli_basic_parquet(sample_parquet):
+def test_cli_basic_parquet(sample_parquet: str) -> None:
     """Test basic CLI functionality with Parquet files."""
     runner = CliRunner()
     with tempfile.NamedTemporaryFile(suffix='.parquet') as output:
@@ -122,7 +123,7 @@ def test_cli_basic_parquet(sample_parquet):
         assert "value1" in df.columns
         assert "value2" in df.columns
 
-def test_cli_with_seed(sample_csv):
+def test_cli_with_seed(sample_csv: str) -> None:
     """Test CLI with seed parameter for reproducibility."""
     runner = CliRunner()
     with tempfile.NamedTemporaryFile(suffix='.csv') as output1, \
@@ -149,7 +150,7 @@ def test_cli_with_seed(sample_csv):
         df2 = pl.read_csv(output2.name)
         assert df1.equals(df2)
 
-def test_cli_no_progress(sample_csv):
+def test_cli_no_progress(sample_csv: str) -> None:
     """Test CLI with progress bars disabled."""
     runner = CliRunner()
     with tempfile.NamedTemporaryFile(suffix='.csv') as output:
@@ -162,7 +163,7 @@ def test_cli_no_progress(sample_csv):
         assert result.exit_code == 0
         assert "Successfully subsampled data" in result.output
 
-def test_cli_invalid_input():
+def test_cli_invalid_input() -> None:
     """Test CLI with invalid input file."""
     runner = CliRunner()
     result = runner.invoke(cli, [
@@ -173,7 +174,7 @@ def test_cli_invalid_input():
     assert result.exit_code != 0
     assert "Error" in result.output
 
-def test_cli_invalid_output_format(sample_csv):
+def test_cli_invalid_output_format(sample_csv: str) -> None:
     """Test CLI with invalid output format."""
     runner = CliRunner()
     result = runner.invoke(cli, [
@@ -185,7 +186,7 @@ def test_cli_invalid_output_format(sample_csv):
     assert "Error" in result.output
     assert "must be CSV or Parquet format" in result.output
 
-def test_cli_invalid_n(sample_csv):
+def test_cli_invalid_n(sample_csv: str) -> None:
     """Test CLI with invalid n parameter."""
     runner = CliRunner()
     result = runner.invoke(cli, [
