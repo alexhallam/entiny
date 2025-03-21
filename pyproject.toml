@@ -1,8 +1,8 @@
 [project]
 name = "entiny"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
-authors = [{ name = "Alex Hallam", email = "alex.hallam@cfacorp.com" }]
+authors = [{ name = "Alex Hallam", email = "alexhallam6.28@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
