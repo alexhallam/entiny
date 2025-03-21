@@ -1,10 +1,7 @@
 # Entiny
 
 [![Test](https://github.com/alexhallam/entiny/actions/workflows/test.yml/badge.svg)](https://github.com/alexhallam/entiny/actions/workflows/test.yml)
-[![Lint](https://github.com/alexhallam/entiny/actions/workflows/lint.yml/badge.svg)](https://github.com/alexhallam/entiny/actions/workflows/lint.yml)
-[![codecov](https://codecov.io/gh/alexhallam/entiny/branch/main/graph/badge.svg)](https://codecov.io/gh/alexhallam/entiny)
 [![PyPI version](https://badge.fury.io/py/entiny.svg)](https://badge.fury.io/py/entiny)
-[![Python Version](https://img.shields.io/pypi/pyversions/entiny.svg)](https://pypi.org/project/entiny/)
 
 A high-performance Python package for Information-Based Optimal Subdata Selection (IBOSS) using Polars for efficient data processing.
 
