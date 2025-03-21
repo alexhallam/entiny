@@ -1,7 +1,7 @@
 import polars as pl
 from entiny import entiny
 
-a = pl.int_range(1, 30, eager=True)
+a = pl.int_range(1, 31, eager=True)
 df = pl.DataFrame({"a": a})
 
 b = df.select(pl.col("a").shuffle(seed=1))
