@@ -31,10 +31,5 @@ jobs:
     
     - name: Run tests
       run: |
-        poetry run pytest tests/ --cov=tinying --cov-report=xml
+        poetry run pytest tests/ --cov=entiny --cov-report=xml
     
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true 
