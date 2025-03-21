@@ -85,7 +85,7 @@ def entiny(
     lf_with_idx = lf.with_row_index("__tinying_index__")
     
     # Keep track of all selected indices to avoid duplicates
-    selected_indices = set()
+    selected_indices: set[int] = set()
     
     # Create an empty list to collect all filtered LazyFrames
     selected_lfs = []
