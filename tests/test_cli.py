@@ -2,13 +2,16 @@
 Test cases for the CLI functionality.
 """
 
+import os
+import tempfile
+
+import numpy as np
+import polars as pl
 import pytest
 from click.testing import CliRunner
-import polars as pl
-import numpy as np
-import os
+
 from entiny.cli import cli
-import tempfile
+
 
 @pytest.fixture
 def sample_csv():

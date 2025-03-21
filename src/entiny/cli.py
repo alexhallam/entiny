@@ -3,6 +3,7 @@ Command-line interface for the Tinying package.
 """
 
 import click
+
 from .core import entiny
 
 HELP_TEXT = """
@@ -109,8 +110,8 @@ def cli(
         click.echo(f"Successfully subsampled data and saved to {output}")
         
     except Exception as e:
-        click.echo(f"Error: {str(e)}", err=True)
-        raise click.Abort()
+        click.echo(f"Error: {e!s}", err=True)
+        raise click.Abort() from e
 
 if __name__ == '__main__':
     cli() 

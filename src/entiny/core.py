@@ -2,17 +2,17 @@
 Core implementation of the IBOSS algorithm using Polars for efficient data processing.
 """
 
-from typing import Union, Optional
-import polars as pl
+
 import numpy as np
+import polars as pl
 from tqdm import tqdm
 
 
 def entiny(
-    data: Union[pl.LazyFrame, pl.DataFrame, str],
+    data: pl.LazyFrame | pl.DataFrame | str,
     n: int,
-    seed: Optional[int] = None,
-    scan_kwargs: Optional[dict] = None,
+    seed: int | None = None,
+    scan_kwargs: dict | None = None,
     show_progress: bool = True
 ) -> pl.LazyFrame:
     """
@@ -132,7 +132,11 @@ def entiny(
             selected_lfs.append(top_indices_lf)
             selected_lfs.append(bottom_indices_lf)
     else:
-        print(f"No strata columns found. Will perform regular sampling for {len(variables)} numeric variables")
+        msg = (
+            "No strata columns found. "
+            f"Will perform regular sampling for {len(variables)} numeric variables"
+        )
+        print(msg)
         
         # Create a progress bar for variables
         var_iter = tqdm(variables, desc="Processing variables", disable=not show_progress)

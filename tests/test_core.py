@@ -2,10 +2,11 @@
 Test cases for the core functionality.
 """
 
-import pytest
-import polars as pl
 import numpy as np
+import polars as pl
+
 from entiny import entiny
+
 
 def test_tinying_sampling_numeric_df():
     # Set random seed for reproducibility
@@ -34,9 +35,13 @@ def test_tinying_sampling_numeric_df():
         original_values = df[col].to_numpy()
         
         # Check that we got some of the highest values
-        assert any(val >= np.percentile(original_values, 90) for val in col_values), f"Missing high values for {col}"
+        assert any(
+            val >= np.percentile(original_values, 90) for val in col_values
+        ), f"Missing high values for {col}"
         # Check that we got some of the lowest values
-        assert any(val <= np.percentile(original_values, 10) for val in col_values), f"Missing low values for {col}"
+        assert any(
+            val <= np.percentile(original_values, 10) for val in col_values
+        ), f"Missing low values for {col}"
 
 def test_tinying_sampling_with_auto_strata():
     # Set random seed for reproducibility
@@ -157,6 +162,8 @@ def test_tinying_sampling_multiple_strata():
                     
                     # Verify that values come from the correct stratum combination
                     assert all(df.filter(original_combo_mask)[col].to_numpy().min() <= val <= 
-                              df.filter(original_combo_mask)[col].to_numpy().max() 
-                              for val in col_values), \
-                        f"Values for {col} in group {group}, category {category} are outside the stratum's range"
+                             df.filter(original_combo_mask)[col].to_numpy().max() 
+                             for val in col_values), (
+                        f"Values for {col} in group {group}, category {category} "
+                        "are outside the stratum's range"
+                    )

@@ -4,7 +4,7 @@ Entiny - A high-performance Python package for Information-Based Optimal Subdata
 
 __version__ = "0.1.0"
 
-from .core import entiny
 from .cli import cli
+from .core import entiny
 
-__all__ = ["entiny", "cli"]
+__all__ = ["cli", "entiny"]
