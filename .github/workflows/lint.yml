@@ -25,12 +25,11 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install
-        poetry run pip install ruff mypy types-tqdm
     
     - name: Run Ruff
       run: |
-        poetry run ruff check .
+        poetry run ruff check --fix .
     
     - name: Run MyPy
       run: |
-        poetry run mypy src/tinying 
+        poetry run mypy src/entiny tests 
