@@ -1,6 +1,6 @@
 [project]
 name = "entiny"
-version = "0.2.0"
+version = "0.2.5"
 description = ""
 authors = [{ name = "Alex Hallam", email = "alexhallam6.28@gmail.com" }]
 readme = "README.md"

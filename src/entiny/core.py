@@ -19,6 +19,8 @@ def entiny(
     Memory-efficient implementation of Information-Based Optimal Subdata Selection (iBoss)
     designed to work with datasets larger than memory, with support for stratification.
     
+    This version avoids selecting the same rows multiple times when processing different columns.
+    
     Parameters:
     -----------
     data : Union[pl.LazyFrame, pl.DataFrame, str]
@@ -39,6 +41,10 @@ def entiny(
     pl.LazyFrame
         A lazy subset of the original data containing the selected samples.
     """
+    import numpy as np
+    import polars as pl
+    from tqdm import tqdm
+    
     if seed is not None:
         np.random.seed(seed)
     
@@ -61,7 +67,7 @@ def entiny(
         lf = data
 
     # Get schema to identify numeric and string columns
-    print("Collecting schema information...")
+
     schema = lf.collect_schema()
     
     # If variables not specified, use all numeric columns
@@ -79,28 +85,36 @@ def entiny(
     ]
     
     # Add row index
-    print("Adding row indices...")
     lf_with_idx = lf.with_row_index("__tinying_index__")
+    
+    # Keep track of all selected indices to avoid duplicates
+    selected_indices = set()
     
     # Create an empty list to collect all filtered LazyFrames
     selected_lfs = []
     
+    # Create a progress bar for variables
+    var_iter = tqdm(variables, desc="Processing variables", disable=not show_progress)
+    
     # Process each variable to find extreme values
-    # If we have strata columns, perform stratified sampling
-    if strata and len(strata) > 0:
-        print(f"Found {len(strata)} strata columns: {', '.join(strata)}")
-        print(f"Will perform stratified sampling for {len(variables)} numeric variables")
+    for var in var_iter:
+        if show_progress:
+            var_iter.set_description(f"Processing variable: {var}")
         
-        # Create a progress bar for variables
-        var_iter = tqdm(variables, desc="Processing variables", disable=not show_progress)
+        # Create a filtered LazyFrame that excludes already selected indices
+        if selected_indices:
+            # Convert selected_indices to a list for filtering
+            filtered_lf = lf_with_idx.filter(
+                ~pl.col("__tinying_index__").is_in(list(selected_indices))
+            )
+        else:
+            filtered_lf = lf_with_idx
         
-        for var in var_iter:
-            if show_progress:
-                var_iter.set_description(f"Processing variable: {var}")
-            
+        # If we have strata columns, perform stratified sampling
+        if strata and len(strata) > 0:
             # Top n values within each stratum
             top_indices_lf = (
-                lf_with_idx
+                filtered_lf
                 .select([*strata, var, "__tinying_index__"])
                 .group_by(strata)
                 .agg(
@@ -113,9 +127,19 @@ def entiny(
                 .select(pl.col("__top_indices__").alias("__tinying_index__"))
             )
             
+            # Collect top indices and add to our set of selected indices
+            top_indices = top_indices_lf.collect().to_series().to_list()
+            selected_indices.update(top_indices)
+            
             # Bottom n values within each stratum
+            # Use the filtered LazyFrame again to exclude already selected indices
+            if top_indices:
+                filtered_lf = lf_with_idx.filter(
+                    ~pl.col("__tinying_index__").is_in(list(selected_indices))
+                )
+            
             bottom_indices_lf = (
-                lf_with_idx
+                filtered_lf
                 .select([*strata, var, "__tinying_index__"])
                 .group_by(strata)
                 .agg(
@@ -128,62 +152,59 @@ def entiny(
                 .select(pl.col("__bottom_indices__").alias("__tinying_index__"))
             )
             
-            # Add to our collection
+            # Collect bottom indices and add to our set of selected indices
+            bottom_indices = bottom_indices_lf.collect().to_series().to_list()
+            selected_indices.update(bottom_indices)
+            
+            # Add to our collection of LazyFrames
             selected_lfs.append(top_indices_lf)
             selected_lfs.append(bottom_indices_lf)
-    else:
-        msg = (
-            "No strata columns found. "
-            f"Will perform regular sampling for {len(variables)} numeric variables"
-        )
-        print(msg)
-        
-        # Create a progress bar for variables
-        var_iter = tqdm(variables, desc="Processing variables", disable=not show_progress)
-        
-        for var in var_iter:
-            if show_progress:
-                var_iter.set_description(f"Processing variable: {var}")
+        else:
+            # No stratification - simple sampling
             
             # Top n values
             top_indices_lf = (
-                lf_with_idx
+                filtered_lf
                 .select([var, "__tinying_index__"])
                 .sort(by=var, descending=True)
                 .limit(n)
                 .select("__tinying_index__")
             )
             
+            # Collect top indices and add to our set of selected indices
+            top_indices = top_indices_lf.collect().to_series().to_list()
+            selected_indices.update(top_indices)
+            
             # Bottom n values
+            # Use the filtered LazyFrame again to exclude already selected indices
+            if top_indices:
+                filtered_lf = lf_with_idx.filter(
+                    ~pl.col("__tinying_index__").is_in(list(selected_indices))
+                )
+            
             bottom_indices_lf = (
-                lf_with_idx
+                filtered_lf
                 .select([var, "__tinying_index__"])
                 .sort(by=var)
                 .limit(n)
                 .select("__tinying_index__")
             )
             
+            # Collect bottom indices and add to our set of selected indices
+            bottom_indices = bottom_indices_lf.collect().to_series().to_list()
+            selected_indices.update(bottom_indices)
+            
             # Add to our collection
             selected_lfs.append(top_indices_lf)
             selected_lfs.append(bottom_indices_lf)
     
-    # Union all the index LazyFrames and get unique indices
-    print("Combining selected indices...")
-    if len(selected_lfs) > 1:
-        all_indices_lf = pl.concat(selected_lfs).unique()
-    else:
-        all_indices_lf = selected_lfs[0].unique()
-    
-    # Collect only the indices (this is a small amount of data)
-    # We need to collect here to get the actual indices for final filtering
-    print("Collecting unique indices...")
-    unique_indices = all_indices_lf.collect().to_series().to_list()
-    print(f"Selected {len(unique_indices)} unique rows")
+    # Convert the set of selected indices to a list
+    print(f"Selected {len(selected_indices)} unique rows")
     
     # Filter the original LazyFrame to include only the selected rows
-    print("Creating final filtered dataset...")
+
     result_lf = lf_with_idx.filter(
-        pl.col("__tinying_index__").is_in(unique_indices)
+        pl.col("__tinying_index__").is_in(list(selected_indices))
     ).drop("__tinying_index__")
     
     return result_lf
