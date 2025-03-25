@@ -1,8 +1,8 @@
-<h1 align="center">entiny</h1>
-<p align="center">entiny takes larger than memory data and makes it small</p>
-
 [![Test](https://github.com/alexhallam/entiny/actions/workflows/test.yml/badge.svg)](https://github.com/alexhallam/entiny/actions/workflows/test.yml)
 [![PyPI version](https://badge.fury.io/py/entiny.svg)](https://badge.fury.io/py/entiny)
+
+<h1 align="center">entiny</h1>
+<p align="center">entiny takes larger than memory data and makes it small</p>
 
 `entiny` is a subset selection package which uses the Information-Based Optimal Subdata Selection (IBOSS) algorithm.
 
