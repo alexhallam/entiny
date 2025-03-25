@@ -158,6 +158,8 @@ result = entiny(df, n=5).collect()
 
 IBOSS is a very simple subset selection option that works well in regression like situations. 
 
+![Information Gain](https://latex.codecogs.com/png.latex?I%28%5Cmathcal%7BS%7D%20%5Ccup%20%5C%7B%28%5Cmathbf%7Bx%7D%2C%20y%29%5C%7D%29%20-%20I%28%5Cmathcal%7BS%7D%29)
+
 ```text
 Algorithm IBOSS(data D, num_min_max k)
 
