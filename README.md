@@ -154,6 +154,40 @@ result = entiny(df, n=5).collect()
 - Progress bars show operation status
 - Efficient handling of large datasets through streaming
 
+## About IBOSS
+
+IBOSS is a very simple subset selection option that works well in regression like situations. 
+
+```text
+Algorithm IBOSS(data D, num_min_max k)
+
+  // Initialize empty sample set
+  iboss_sample = {}
+
+  // Iterate over each column (parameter)
+  for each column c in D:
+    // Sort column c in ascending order
+    sorted_c = sort(c)
+
+    // Select k smallest values
+    min_values = sorted_c[0:k]  
+
+    // Select k largest values
+    max_values = sorted_c[length(sorted_c)-k: length(sorted_c)]
+
+    // Add selected values to the sample
+    iboss_sample.add(min_values)
+    iboss_sample.add(max_values)
+
+
+  return iboss_sample
+```
+
+
+Note: If the majority of your columns are numeric then this is a great fit. For tabular data which is categorical look at Data Nuggets.
+
+
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
